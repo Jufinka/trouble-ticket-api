@@ -13,6 +13,7 @@
     "playwright.config.ts",
     "fixtures/**/*.ts",
     "api/**/*.ts",
-    "ui/**/*.ts"
+    "ui/**/*.ts",
+    "shared/**/*.ts"
   ]
 }
