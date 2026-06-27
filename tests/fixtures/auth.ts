@@ -4,6 +4,7 @@ import {
   type Browser,
   type BrowserContext,
 } from "@playwright/test";
+import { Timing, UiSelectors } from "../shared/testData.js";
 
 export type TenantUser = "alpha" | "beta" | "gamma";
 
@@ -11,21 +12,40 @@ type TokenResponse = {
   access_token: string;
 };
 
-const KEYCLOAK_BASE_URL =
-  process.env.KEYCLOAK_BASE_URL ?? "http://localhost:8180";
-const KEYCLOAK_REALM = process.env.KEYCLOAK_REALM ?? "ttapi";
-const KEYCLOAK_CLIENT_ID = process.env.KEYCLOAK_CLIENT_ID ?? "ttapi-client";
-const KEYCLOAK_PASSWORD = process.env.KEYCLOAK_PASSWORD ?? "Test1234!";
+export function getRequiredEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+  return value;
+}
+
+const KEYCLOAK_BASE_URL = getRequiredEnv("KEYCLOAK_BASE_URL");
+const KEYCLOAK_REALM = getRequiredEnv("KEYCLOAK_REALM");
+const KEYCLOAK_CLIENT_ID = getRequiredEnv("KEYCLOAK_CLIENT_ID");
+const KEYCLOAK_PASSWORD = getRequiredEnv("KEYCLOAK_PASSWORD");
+const FRONTEND_BASE_URL = getRequiredEnv("FRONTEND_BASE_URL");
+
+const TENANT_USERNAMES: Record<TenantUser, string> = {
+  alpha: getRequiredEnv("KEYCLOAK_USERNAME_ALPHA"),
+  beta: getRequiredEnv("KEYCLOAK_USERNAME_BETA"),
+  gamma: getRequiredEnv("KEYCLOAK_USERNAME_GAMMA"),
+};
+
+export function resolveTenantUsername(user: TenantUser): string {
+  return TENANT_USERNAMES[user];
+}
 
 function tokenUrl(): string {
   return `${KEYCLOAK_BASE_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token`;
 }
 
 export async function getAccessToken(
-  username: TenantUser,
+  user: TenantUser,
   apiContext?: APIRequestContext,
 ): Promise<string> {
   const ownedContext = apiContext ?? (await request.newContext());
+  const username = resolveTenantUsername(user);
 
   try {
     const response = await ownedContext.post(tokenUrl(), {
@@ -38,7 +58,7 @@ export async function getAccessToken(
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      timeout: 10_000,
+      timeout: Timing.apiTokenTimeoutMs,
     });
 
     if (!response.ok()) {
@@ -60,10 +80,10 @@ export async function getAccessToken(
 }
 
 export async function authHeaders(
-  username: TenantUser,
+  user: TenantUser,
   apiContext?: APIRequestContext,
 ): Promise<Record<string, string>> {
-  const token = await getAccessToken(username, apiContext);
+  const token = await getAccessToken(user, apiContext);
   return {
     Authorization: `Bearer ${token}`,
   };
@@ -71,16 +91,19 @@ export async function authHeaders(
 
 export async function createStorageState(
   browser: Browser,
-  username: TenantUser,
+  user: TenantUser,
   outputPath: string,
 ): Promise<void> {
   const context: BrowserContext = await browser.newContext();
   const page = await context.newPage();
+  const username = resolveTenantUsername(user);
 
-  await page.goto("http://localhost:3000");
-  await page.getByLabel(/username/i).fill(username);
-  await page.getByLabel(/password/i).fill(KEYCLOAK_PASSWORD);
-  await page.getByRole("button", { name: /sign in|log in|zaloguj/i }).click();
+  await page.goto(FRONTEND_BASE_URL);
+  await page.locator(UiSelectors.usernameInput).first().fill(username);
+  await page.locator(UiSelectors.passwordInput).first().fill(KEYCLOAK_PASSWORD);
+  await page
+    .getByRole("button", { name: UiSelectors.keycloakLoginButtonName })
+    .click();
   await page.waitForURL("**/");
   await context.storageState({ path: outputPath });
   await context.close();
