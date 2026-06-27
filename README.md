@@ -52,7 +52,7 @@ Uwaga: katalog z kodem aplikacji (backend/frontend/docker) moze byc niecommitowa
 1. Zbuduj obrazy:
 
 ```bash
-cd docker
+cd ttapi/docker
 docker compose -f docker-compose.yaml build
 ```
 
