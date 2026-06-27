@@ -1,32 +1,29 @@
-import { expect, test } from "@playwright/test";
+import { test } from "@playwright/test";
 
-import { createTicketForTenant, loginAs } from "./helpers.js";
+import { createTicketForTenant } from "./helpers.js";
+import { LoginPage } from "./pages/LoginPage.js";
+import { TicketDetailPage } from "./pages/TicketDetailPage.js";
+import { TestUsers, UiTestData } from "../shared/testData.js";
 
 test.describe("UI close ticket", () => {
   test("closes ticket and hides close/note actions", async ({
     page,
     request,
   }) => {
+    const loginPage = new LoginPage(page);
+    const ticketDetailPage = new TicketDetailPage(page);
+
     const { externalId } = await createTicketForTenant(
       request,
-      "alpha",
-      "E2E-UI-CLOSE",
+      TestUsers.alpha,
+      UiTestData.closePrefix,
     );
 
-    await loginAs(page, "alpha");
-    await page.goto(`/tickets/${externalId}`);
+    await loginPage.open();
+    await loginPage.loginIfNeeded(TestUsers.alpha);
+    await ticketDetailPage.open(externalId);
 
-    const closeButton = page.getByRole("button", {
-      name: "Zamknij zgłoszenie",
-    });
-    await expect(closeButton).toBeVisible();
-    await closeButton.click();
-
-    await expect(page.getByText("Zgłoszenie zostało zamknięte")).toBeVisible();
-    await expect(page.getByText("Zamknięte", { exact: true })).toBeVisible();
-    await expect(closeButton).not.toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: "Dodaj notatkę" }),
-    ).not.toBeVisible();
+    await ticketDetailPage.closeTicket();
+    await ticketDetailPage.assertClosedState();
   });
 });

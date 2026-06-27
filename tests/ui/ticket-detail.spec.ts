@@ -1,26 +1,30 @@
-import { expect, test } from "@playwright/test";
+import { test } from "@playwright/test";
 
-import { createTicketForTenant, loginAs } from "./helpers.js";
+import { createTicketForTenant } from "./helpers.js";
+import { LoginPage } from "./pages/LoginPage.js";
+import { TicketDetailPage } from "./pages/TicketDetailPage.js";
+import { TicketListPage } from "./pages/TicketListPage.js";
+import { ApiTestData, TestUsers, UiTestData } from "../shared/testData.js";
 
 test.describe("UI ticket details", () => {
   test("opens ticket details and displays notes", async ({ page, request }) => {
+    const loginPage = new LoginPage(page);
+    const ticketListPage = new TicketListPage(page);
+    const ticketDetailPage = new TicketDetailPage(page);
+
     const { externalId } = await createTicketForTenant(
       request,
-      "alpha",
-      "E2E-UI-DETAIL",
+      TestUsers.alpha,
+      UiTestData.detailPrefix,
     );
 
-    await loginAs(page, "alpha");
+    await loginPage.open();
+    await loginPage.loginIfNeeded(TestUsers.alpha);
+    await ticketListPage.openTicket(externalId);
 
-    const ticketRow = page.locator("tr", { hasText: externalId });
-    await ticketRow.click();
-
-    await expect(page).toHaveURL(new RegExp(`/tickets/${externalId}$`));
-    await expect(page.getByRole("heading", { name: externalId })).toBeVisible();
-    await expect(page.getByText(/^Notatki \(/)).toBeVisible();
-    await expect(page.getByText("Created by E2E API scenario")).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: "Dodaj notatkę" }),
-    ).toBeVisible();
+    await ticketDetailPage.assertLoaded(externalId);
+    await ticketDetailPage.assertNotesSectionVisible();
+    await ticketDetailPage.assertNoteVisible(ApiTestData.defaultNote);
+    await ticketDetailPage.assertAddNoteSectionVisible();
   });
 });
