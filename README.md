@@ -1,14 +1,14 @@
-# Trouble Ticket API - Test Assignment Delivery
+# Trouble Ticket API - E2E Tests
 
-Repozytorium zawiera rozwiazanie zadania rekrutacyjnego dla roli Testera Automatyzacji:
+Repozytorium zawiera:
 
 - strategie testow w pliku `TEST_STRATEGY.md`
 - automatyczne testy E2E API i UI w katalogu `tests/`
-- instrukcje uruchomienia srodowiska i testow
+- instrukcje uruchomienia testow przeciw lokalnie uruchomionemu srodowisku aplikacji
 
-## 1. Zakres dostarczonych materialow
+## 1. Zakres
 
-Wymagania z `ttapi/TASK.md` zostaly pokryte przez:
+Zakres obejmuje:
 
 - dokument strategii testow (5 wymaganych obszarow)
 - implementacje scenariuszy API i UI
@@ -20,21 +20,21 @@ Wymagania z `ttapi/TASK.md` zostaly pokryte przez:
 ### API
 
 - `SC-API-01` tenant isolation:
-	- `alpha` tworzy ticket
-	- `beta` probuje odczytac ten sam ticket
-	- oczekiwane: `404 TROUBLE_TICKET_NOT_FOUND`
+  - `alpha` tworzy ticket
+  - `beta` probuje odczytac ten sam ticket
+  - oczekiwane: `404 TROUBLE_TICKET_NOT_FOUND`
 - `SC-API-02` note not allowed for closed ticket:
-	- ticket zostaje zamkniety
-	- proba dodania notatki po zamknieciu
-	- oczekiwane: `400 NOTE_ADDITION_NOT_ALLOWED`
+  - ticket zostaje zamkniety
+  - proba dodania notatki po zamknieciu
+  - oczekiwane: `400 NOTE_ADDITION_NOT_ALLOWED`
 
 ### UI
 
 - `SC-UI-01` tworzenie ticketu przez formularz i przejscie do szczegolow
 - dodatkowe pokrycie kluczowych flow UI:
-	- lista ticketow i status chip
-	- widok szczegolow z notatkami
-	- zamykanie ticketu i ukrycie akcji po zamknieciu
+  - lista ticketow i status chip
+  - widok szczegolow z notatkami
+  - zamykanie ticketu i ukrycie akcji po zamknieciu
 
 ## 3. Wymagania wstepne
 
@@ -47,10 +47,12 @@ Wymagania z `ttapi/TASK.md` zostaly pokryte przez:
 
 Zgodnie z zalozeniem testy uruchamiane sa przeciw pelnemu srodowisku Docker Compose.
 
+Uwaga: katalog z kodem aplikacji (backend/frontend/docker) moze byc niecommitowany do tego repozytorium. W takim przypadku uruchom srodowisko z lokalnej kopii aplikacji.
+
 1. Zbuduj obrazy:
 
 ```bash
-cd ttapi/docker
+cd docker
 docker compose -f docker-compose.yaml build
 ```
 
@@ -149,13 +151,7 @@ tests/
 		testData.ts
 ```
 
-## 9. Powiazane dokumenty
-
-- Strategia testow: `TEST_STRATEGY.md`
-- Tresc zadania: `ttapi/TASK.md`
-- Uruchomienie aplikacji: `ttapi/README.md`
-
-## 10. Uwagi wykonawcze
+## 9. Uwagi wykonawcze
 
 - Testy sa samowystarczalne i tworza unikalne `externalId` per test.
 - Logika auth i stale testowe sa centralizowane, aby ograniczyc duplikacje.
