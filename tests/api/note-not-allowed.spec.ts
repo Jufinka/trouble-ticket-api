@@ -2,42 +2,49 @@ import { expect, test } from "@playwright/test";
 
 import { authHeaders } from "../fixtures/auth.js";
 import { apiUrl, createTicketPayload, uniqueExternalId } from "./helpers.js";
+import {
+  ApiErrorCodes,
+  ApiPaths,
+  ApiTestData,
+  HttpStatus,
+  TestUsers,
+} from "../shared/testData.js";
 
 test.describe("SC-API-02 Note not allowed for closed ticket", () => {
   test("should return 400 NOTE_ADDITION_NOT_ALLOWED for closed ticket", async ({
     request,
   }) => {
-    const externalId = uniqueExternalId("E2E-NOTE-CLOSED");
-    const headers = await authHeaders("alpha", request);
+    const externalId = uniqueExternalId(ApiTestData.noteNotAllowedPrefix);
+    const headers = await authHeaders(TestUsers.alpha, request);
 
-    const createResponse = await request.post(apiUrl("troubleTicket"), {
+    const createResponse = await request.post(apiUrl(ApiPaths.troubleTicket), {
       headers,
       data: createTicketPayload(externalId),
     });
 
-    expect(createResponse.status()).toBe(201);
+    expect(createResponse.status()).toBe(HttpStatus.created);
 
     const closeResponse = await request.patch(
-      apiUrl(`troubleTicket/${externalId}`),
+      apiUrl(`${ApiPaths.troubleTicket}/${externalId}`),
       {
         headers,
-        data: { status: "closed" },
+        data: { status: ApiTestData.closeStatus },
       },
     );
 
-    expect(closeResponse.status()).toBe(200);
+    expect(closeResponse.status()).toBe(HttpStatus.ok);
 
     const noteResponse = await request.post(
-      apiUrl(`troubleTicket/${externalId}/note`),
+      apiUrl(`${ApiPaths.troubleTicket}/${externalId}/note`),
       {
         headers,
-        data: { text: "This should be blocked" },
+        data: { text: ApiTestData.closeBlockedNote },
       },
     );
 
-    expect(noteResponse.status()).toBe(400);
+    expect(noteResponse.status()).toBe(HttpStatus.badRequest);
     const errorBody = await noteResponse.json();
-    expect(errorBody.code).toBe("NOTE_ADDITION_NOT_ALLOWED");
+    expect(errorBody.code).toBe(ApiErrorCodes.noteAdditionNotAllowed);
     expect(errorBody.requestId).toBeTruthy();
   });
 });
