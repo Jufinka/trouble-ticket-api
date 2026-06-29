@@ -25,3 +25,16 @@ export async function createTicketForTenant(
   expect([HttpStatus.ok, HttpStatus.created]).toContain(response.status());
   return { externalId };
 }
+
+export async function createCloseableTicketForTenant(
+  request: APIRequestContext,
+  tenant: TenantUser,
+  prefix: string,
+): Promise<{ externalId: string }> {
+  return createTicketForTenant(
+    request,
+    tenant,
+    prefix,
+    ApiTestData.closeableServiceId,
+  );
+}

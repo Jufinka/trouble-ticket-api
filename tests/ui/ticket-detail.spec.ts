@@ -6,7 +6,7 @@ import { TicketDetailPage } from "./pages/TicketDetailPage.js";
 import { TicketListPage } from "./pages/TicketListPage.js";
 import { ApiTestData, TestUsers, UiTestData } from "../shared/testData.js";
 
-test.describe("UI ticket details", () => {
+test.describe("SC-UI-04 UI ticket details", () => {
   test("opens ticket details and displays notes", async ({ page, request }) => {
     const loginPage = new LoginPage(page);
     const ticketListPage = new TicketListPage(page);

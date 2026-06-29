@@ -7,8 +7,6 @@ import {
 } from "../../fixtures/auth.js";
 import { Timing, UiSelectors, UiText } from "../../shared/testData.js";
 
-const TEST_PASSWORD = getRequiredEnv("KEYCLOAK_PASSWORD");
-
 export class LoginPage {
   constructor(private readonly page: Page) {}
 
@@ -26,13 +24,9 @@ export class LoginPage {
 
     if (requiresLogin) {
       await usernameInput.fill(loginName);
-      await this.page
-        .locator(UiSelectors.passwordInput)
-        .first()
-        .fill(TEST_PASSWORD);
-      await this.page
-        .getByRole("button", { name: UiSelectors.keycloakLoginButtonName })
-        .click();
+      const password = getRequiredEnv("KEYCLOAK_PASSWORD");
+      await this.page.locator(UiSelectors.passwordInput).first().fill(password);
+      await this.page.locator(UiSelectors.keycloakLoginButton).click();
     }
 
     await expect(

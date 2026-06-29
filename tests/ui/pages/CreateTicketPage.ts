@@ -30,6 +30,28 @@ export class CreateTicketPage {
       .click();
   }
 
+  async assertEmptyFormValidation(): Promise<void> {
+    await expect(this.page).toHaveURL(/\/tickets\/new$/);
+    await expect(
+      this.page.getByText(UiText.requiredFieldError, { exact: true }),
+    ).toHaveCount(2);
+    await expect(
+      this.page.getByText(UiText.requiredPositiveNumberError),
+    ).toBeVisible();
+    await expect(this.page.getByLabel("ID zewnętrzny")).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+    await expect(this.page.getByLabel("ID usługi")).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+    await expect(this.page.getByLabel("Opis")).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+  }
+
   async assertCreated(externalId: string): Promise<void> {
     await expect(this.page).toHaveURL(new RegExp(`/tickets/${externalId}$`));
     await expect(this.page.getByText(UiText.ticketCreatedToast)).toBeVisible();
