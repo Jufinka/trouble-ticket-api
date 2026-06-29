@@ -31,6 +31,7 @@ Zakres obejmuje:
 ### UI
 
 - `SC-UI-01` tworzenie ticketu przez formularz i przejscie do szczegolow
+- `SC-UI-02` wyslanie pustego formularza i walidacja bez nawigacji
 - dodatkowe pokrycie kluczowych flow UI:
   - lista ticketow i status chip
   - widok szczegolow z notatkami
@@ -139,6 +140,7 @@ tests/
 		ticket-list.spec.ts
 		ticket-detail.spec.ts
 		create-ticket.spec.ts
+		create-ticket-validation.spec.ts
 		close-ticket.spec.ts
 		pages/
 			LoginPage.ts

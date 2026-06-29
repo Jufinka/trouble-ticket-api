@@ -1,11 +1,11 @@
 import { test } from "@playwright/test";
 
-import { createTicketForTenant } from "./helpers.js";
+import { createCloseableTicketForTenant } from "./helpers.js";
 import { LoginPage } from "./pages/LoginPage.js";
 import { TicketDetailPage } from "./pages/TicketDetailPage.js";
 import { TestUsers, UiTestData } from "../shared/testData.js";
 
-test.describe("UI close ticket", () => {
+test.describe("SC-UI-05 UI close ticket", () => {
   test("closes ticket and hides close/note actions", async ({
     page,
     request,
@@ -13,7 +13,7 @@ test.describe("UI close ticket", () => {
     const loginPage = new LoginPage(page);
     const ticketDetailPage = new TicketDetailPage(page);
 
-    const { externalId } = await createTicketForTenant(
+    const { externalId } = await createCloseableTicketForTenant(
       request,
       TestUsers.alpha,
       UiTestData.closePrefix,
