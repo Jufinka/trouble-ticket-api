@@ -23,6 +23,8 @@ test.describe("SC-API-02 Note not allowed for closed ticket", () => {
     });
 
     expect(createResponse.status()).toBe(HttpStatus.created);
+    const createdTicket = await createResponse.json();
+    expect(createdTicket.status).toBe(ApiTestData.acknowledgedStatus);
 
     const closeResponse = await request.patch(
       apiUrl(`${ApiPaths.troubleTicket}/${externalId}`),

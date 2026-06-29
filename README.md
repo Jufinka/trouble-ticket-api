@@ -133,6 +133,8 @@ npm run show-report
 
 ```text
 tests/
+	.auth/
+		alpha.json (generated)
 	api/
 		tenant-isolation.spec.ts
 		note-not-allowed.spec.ts
@@ -149,7 +151,9 @@ tests/
 			TicketDetailPage.ts
 	fixtures/
 		auth.ts
+		globalSetup.ts
 	shared/
+		env.ts
 		testData.ts
 ```
 

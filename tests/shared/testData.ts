@@ -25,6 +25,7 @@ export const ApiTestData = {
   closeableServiceId: 100002,
   defaultNote: "Created by E2E API scenario",
   newStatus: "new",
+  acknowledgedStatus: "acknowledged",
   closeBlockedNote: "This should be blocked",
   tenantIsolationPrefix: "E2E-TENANT",
   noteNotAllowedPrefix: "E2E-NOTE-CLOSED",
