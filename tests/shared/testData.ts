@@ -22,6 +22,7 @@ export const ApiPaths = {
 
 export const ApiTestData = {
   defaultServiceId: 100002,
+  closeableServiceId: 100002,
   defaultNote: "Created by E2E API scenario",
   newStatus: "new",
   closeBlockedNote: "This should be blocked",
@@ -50,12 +51,14 @@ export const UiText = {
   ticketClosedToast: "Zgłoszenie zostało zamknięte",
   closeTicketButton: "Zamknij zgłoszenie",
   acknowledgedStatusLabel: "Przyjęte",
+  requiredFieldError: "Pole wymagane",
+  requiredPositiveNumberError: "Pole wymagane (liczba > 0)",
 } as const;
 
 export const UiSelectors = {
   usernameInput: "input[name='username'], #username",
   passwordInput: "input[name='password'], #password",
-  keycloakLoginButtonName: /sign in|log in|zaloguj/i,
+  keycloakLoginButton: "#kc-login",
 } as const;
 
 export const Timing = {
@@ -64,6 +67,8 @@ export const Timing = {
   apiTokenTimeoutMs: 10_000,
   testTimeoutMs: 30_000,
   expectTimeoutMs: 5_000,
+  envReadyTimeoutMs: 60_000,
+  probeIntervalMs: 2_000,
 } as const;
 
 export type CreateTicketFormData = {

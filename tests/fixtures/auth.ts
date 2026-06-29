@@ -4,7 +4,10 @@ import {
   type Browser,
   type BrowserContext,
 } from "@playwright/test";
+import { Env } from "../shared/env.js";
 import { Timing, UiSelectors } from "../shared/testData.js";
+
+export { getRequiredEnv } from "../shared/env.js";
 
 export type TenantUser = "alpha" | "beta" | "gamma";
 
@@ -12,32 +15,19 @@ type TokenResponse = {
   access_token: string;
 };
 
-export function getRequiredEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`Missing required environment variable: ${name}`);
-  }
-  return value;
-}
-
-const KEYCLOAK_BASE_URL = getRequiredEnv("KEYCLOAK_BASE_URL");
-const KEYCLOAK_REALM = getRequiredEnv("KEYCLOAK_REALM");
-const KEYCLOAK_CLIENT_ID = getRequiredEnv("KEYCLOAK_CLIENT_ID");
-const KEYCLOAK_PASSWORD = getRequiredEnv("KEYCLOAK_PASSWORD");
-const FRONTEND_BASE_URL = getRequiredEnv("FRONTEND_BASE_URL");
-
-const TENANT_USERNAMES: Record<TenantUser, string> = {
-  alpha: getRequiredEnv("KEYCLOAK_USERNAME_ALPHA"),
-  beta: getRequiredEnv("KEYCLOAK_USERNAME_BETA"),
-  gamma: getRequiredEnv("KEYCLOAK_USERNAME_GAMMA"),
-};
-
 export function resolveTenantUsername(user: TenantUser): string {
-  return TENANT_USERNAMES[user];
+  switch (user) {
+    case "alpha":
+      return Env.keycloakUsernameAlpha;
+    case "beta":
+      return Env.keycloakUsernameBeta;
+    case "gamma":
+      return Env.keycloakUsernameGamma;
+  }
 }
 
 function tokenUrl(): string {
-  return `${KEYCLOAK_BASE_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token`;
+  return `${Env.keycloakBaseUrl}/realms/${Env.keycloakRealm}/protocol/openid-connect/token`;
 }
 
 export async function getAccessToken(
@@ -51,9 +41,9 @@ export async function getAccessToken(
     const response = await ownedContext.post(tokenUrl(), {
       form: {
         grant_type: "password",
-        client_id: KEYCLOAK_CLIENT_ID,
+        client_id: Env.keycloakClientId,
         username,
-        password: KEYCLOAK_PASSWORD,
+        password: Env.keycloakPassword,
       },
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -98,12 +88,13 @@ export async function createStorageState(
   const page = await context.newPage();
   const username = resolveTenantUsername(user);
 
-  await page.goto(FRONTEND_BASE_URL);
+  await page.goto(Env.frontendBaseUrl);
   await page.locator(UiSelectors.usernameInput).first().fill(username);
-  await page.locator(UiSelectors.passwordInput).first().fill(KEYCLOAK_PASSWORD);
   await page
-    .getByRole("button", { name: UiSelectors.keycloakLoginButtonName })
-    .click();
+    .locator(UiSelectors.passwordInput)
+    .first()
+    .fill(Env.keycloakPassword);
+  await page.locator(UiSelectors.keycloakLoginButton).click();
   await page.waitForURL("**/");
   await context.storageState({ path: outputPath });
   await context.close();
