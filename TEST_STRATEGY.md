@@ -148,5 +148,4 @@ Scenariusze SC-API-01 i SC-UI-01 spełniają minimalne wymaganie zadania. SC-API
 - SC-API-03: niedozwolone zamknięcie -> `STATUS_TRANSITION_ERROR`
 - SC-API-04: idempotencja create -> 200 z istniejącym zasobem
 - SC-API-05: brak tokenu -> 401
-- SC-UI-03: dodanie notatki w szczegółach zgłoszenia
-- SC-UI-04: zamknięcie zgłoszenia z UI
+- SC-UI-06: dodanie notatki w szczegółach zgłoszenia
